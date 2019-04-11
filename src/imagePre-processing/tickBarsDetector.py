@@ -3,7 +3,10 @@ import cv2
 import itertools
 from collections import Counter
 
-filename = "../../data/2.jpg"
+# default resolution of USG image
+DEFAULT_SIZE = 50
+
+filename = "../../data/4.jpg"
 image = cv2.imread(filename)
 margin = 60
 margin_y = 20
@@ -12,7 +15,7 @@ x = 0
 
 y_size, x_size, _ = image.shape
 
-roi = image[y:margin_y, x + margin:x_size - margin]
+roi = image[y:margin_y, x + margin:x_size - margin].copy()
 
 # threshold the image
 (_, thresh) = cv2.threshold(roi, 245, 255, cv2.THRESH_BINARY)
@@ -43,3 +46,12 @@ print(diffs_dict)
 
 bar_tick = diffs_dict.most_common(1)[0][0]
 print(bar_tick)
+
+if bar_tick != DEFAULT_SIZE:
+    print("in resizing")
+    scale = DEFAULT_SIZE/bar_tick
+    image = cv2.resize(image, None, fx=scale, fy=scale)
+
+cv2.imwrite("../../data/resized.jpg", image)
+cv2.destroyAllWindows()
+
