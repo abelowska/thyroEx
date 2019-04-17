@@ -29,21 +29,25 @@ for i in range(5):
         if len(filtered_neighbours) >= 4:
             image[y, x] = [0, 0, 0]
 
+cv2.imshow("Image", image)
+cv2.waitKey(0)
 
-for pixel in zipped_indexes:
-    y, x = pixel
+for i in range(5):
 
-    neighbours = [(y + a, x + b) for a, b in kernel]
-    neighbours_values = [((yy, xx), image[yy, xx]) for yy, xx in neighbours if
-                         0 <= yy < y_size and 0 <= xx < x_size]
+    for pixel in zipped_indexes:
+        y, x = pixel
 
-    # neighbour_values are array of uint_8 type so sum() causes overflow
-    _sum = int(0)
-    for value in neighbours_values:
-        _sum += value[1][0]
+        neighbours = [(y + a, x + b) for a, b in kernel]
+        neighbours_values = [((yy, xx), image[yy, xx]) for yy, xx in neighbours if
+                             0 <= yy < y_size and 0 <= xx < x_size]
 
-    average_color = _sum / len(neighbours_values)
-    image[y, x] = np.array([average_color] * 3)
+        # neighbour_values are array of uint_8 type so sum() causes overflow
+        _sum = int(0)
+        for value in neighbours_values:
+            _sum += value[1][0]
+
+        average_color = _sum / len(neighbours_values)
+        image[y, x] = np.array([average_color] * 3)
 
 
 # TODO add automatic cropping roi of image. Check annotations removing.

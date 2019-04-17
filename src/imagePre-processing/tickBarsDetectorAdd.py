@@ -54,6 +54,7 @@ print(diffs_dict)
 plt.bar(diffs_dict.keys(), diffs_dict.values())
 # plt.show()
 
+# we have to take second common element because of special ticks for a half of unit. W ogole dupa bo jest ich ile badz
 bar_tick = diffs_dict.most_common(2)[1][0]
 print(bar_tick)
 
