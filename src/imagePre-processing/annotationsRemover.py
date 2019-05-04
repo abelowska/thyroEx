@@ -16,15 +16,29 @@ import cv2
 KERNEL = [(-1, 0), (-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1)]
 
 
+class AnnotationRemoverCreator:
+    @staticmethod
+    def blue_annotations():
+        return AnnotationRemover(cut_off_threshold=175, sig_diff=60, sig_neighbours=4, steps=10)
+
+    @staticmethod
+    def columbia_annotations():
+        return AnnotationRemover(cut_off_threshold=235, sig_diff=100, sig_neighbours=3, steps=10)
+
+    @staticmethod
+    def french_annotations():
+        return AnnotationRemover(cut_off_threshold=175, sig_diff=60, sig_neighbours=3, steps=10)
+
+
 class AnnotationRemover:
-    def __init__(self, cut_off_threshold=175, sig_diff=60, sig_neighbours=4, steps=10):
+    def __init__(self, cut_off_threshold, sig_diff, sig_neighbours, steps):
         self.cut_off_threshold = cut_off_threshold
         self.sig_diff = sig_diff
         self.sig_neighbours = sig_neighbours
         self.steps = steps
 
     @staticmethod
-    def read_image(path="../../data/10.jpg"):
+    def read_image(path):
         filename = path
         image = cv2.imread(filename)
         return image
@@ -101,7 +115,7 @@ class AnnotationRemover:
         return image
 
 
-annotation_remover = AnnotationRemover()
-my_image = annotation_remover.read_image()
+annotation_remover = AnnotationRemoverCreator.blue_annotations()
+my_image = annotation_remover.read_image(path="../../data/10.jpg")
 my_image, pixels = annotation_remover.find_annotations_with_neighbourhood(image=my_image)
 my_image = annotation_remover.restore_gaps(image=my_image, pixels_with_bad_neighbours=pixels)
