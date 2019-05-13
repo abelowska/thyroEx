@@ -1,10 +1,3 @@
-# Annotations remover does not work well
-# works for first database (needed different threshold = 235 and sig_diff=100)
-# sig_diff = 60 for second database
-# cut_off_threshold = 175 for second database
-# sig_neighbours = 4 for blue ones from second database. 3 for first and standard from second
-
-
 import numpy as np
 import cv2
 
@@ -39,9 +32,7 @@ class AnnotationRemover:
 
     @staticmethod
     def read_image(path):
-        filename = path
-        image = cv2.imread(filename)
-        return image
+        return cv2.imread(path)
 
     # TODO add fit name of changed image
 
