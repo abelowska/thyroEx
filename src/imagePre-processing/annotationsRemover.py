@@ -106,7 +106,7 @@ class AnnotationRemover:
         return image
 
 
-annotation_remover = AnnotationRemoverCreator.blue_annotations()
-my_image = annotation_remover.read_image(path="../../data/10.jpg")
+annotation_remover = AnnotationRemoverCreator.columbia_annotations()
+my_image = annotation_remover.read_image(path="../../data/99_2.jpg")
 my_image, pixels = annotation_remover.find_annotations_with_neighbourhood(image=my_image)
 my_image = annotation_remover.restore_gaps(image=my_image, pixels_with_bad_neighbours=pixels)

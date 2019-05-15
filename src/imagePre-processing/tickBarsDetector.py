@@ -7,24 +7,32 @@ from collections import Counter
 DEFAULT_SIZE = 100
 
 
+class ImageResizerFactory:
+    @staticmethod
+    def columbia_images():
+        return ImageResizer(margin_x=60, margin_y=20, x=60, y=0, cut_off_threshold=245, special_ticks=0)
+
+    @staticmethod
+    def french_images():
+        return ImageResizer(margin_x=300, margin_y=20, x=300, y=120, cut_off_threshold=230, special_ticks=1)
+
+
 class ImageResizer:
-    def __init__(self, margin_x=60, margin_y=20):
+    def __init__(self, margin_x, margin_y, x, y, cut_off_threshold, special_ticks):
         self.margin_x = margin_x
         self.margin_y = margin_y
+        self.x = x
+        self.y = y
+        self.cut_off_threshold = cut_off_threshold
+        self.special_ticks = special_ticks
 
     @staticmethod
     def read_image(path):
         return cv2.imread(path)
 
-    # returns roi
-    def crop_ticks_bar_area(self, image):
-        y_size, x_size, _ = image.shape
-        return image[0:self.margin_y, self.margin_x:x_size - self.margin_x].copy()
-
     @staticmethod
-    def threshold_image(roi):
-        (_, thresh) = cv2.threshold(roi, 245, 255, cv2.THRESH_BINARY)
-        return thresh
+    def save_image(image):
+        cv2.imwrite("../../data/resized.jpg", image)
 
     @staticmethod
     def find_white_points(thresh):
@@ -38,7 +46,45 @@ class ImageResizer:
         return unique_x_coordinates, unique_y_coordinates
 
     @staticmethod
-    def calculate_tick(white_points_coordinates):
+    def repair_list(diffs):
+        repaired_diffs = []
+
+        for item in diffs:
+            if item in repaired_diffs:
+                repaired_diffs.append(item)
+            elif item+1 in repaired_diffs:
+                repaired_diffs.append(item+1)
+            elif item-1 in repaired_diffs:
+                repaired_diffs.append(item-1)
+            else:
+                repaired_diffs.append(item)
+
+        return repaired_diffs
+
+
+    @staticmethod
+    def resize(bar_tick, image):
+        if bar_tick != DEFAULT_SIZE:
+            print("in resizing")
+            scale = DEFAULT_SIZE / bar_tick
+            image = cv2.resize(image, None, fx=scale, fy=scale)
+            return image
+
+     # returns roi
+    def crop_ticks_bar_area(self, image):
+        y_size, x_size, _ = image.shape
+        image = image[self.y:self.y + self.margin_y, self.x:x_size - self.margin_x].copy()
+        # cv2.imshow("Image", image)
+        # cv2.waitKey(0)
+        return image
+
+    def threshold_image(self, roi):
+        (_, thresh) = cv2.threshold(roi, self.cut_off_threshold, 255, cv2.THRESH_BINARY)
+        # cv2.imshow("Image", thresh)
+        # cv2.waitKey(0)
+        return thresh
+
+    def calculate_tick(self, white_points_coordinates):
         x_coordinates = white_points_coordinates[0]
         pairs = list(itertools.product(x_coordinates, repeat=2))
         print(pairs)
@@ -52,30 +98,23 @@ class ImageResizer:
         filtered_diffs = [x for x in diffs if x > threshold]
         print(filtered_diffs)
 
-        diffs_dict = Counter(filtered_diffs)
+        diffs = ImageResizer.repair_list(filtered_diffs)
+
+        diffs_dict = Counter(diffs)
         print(diffs_dict)
 
-        bar_tick = diffs_dict.most_common(1)[0][0]
+        # plt.bar(diffs_dict.keys(), diffs_dict.values())
+        # plt.show()
+
+        bar_tick = diffs_dict.most_common(self.special_ticks + 1)[self.special_ticks][0]
         print(bar_tick)
 
         return bar_tick
 
-    @staticmethod
-    def resize(bar_tick, image):
-        if bar_tick != DEFAULT_SIZE:
-            print("in resizing")
-            scale = DEFAULT_SIZE / bar_tick
-            image = cv2.resize(image, None, fx=scale, fy=scale)
-            return image
 
-    @staticmethod
-    def save_image(image):
-        cv2.imwrite("../../data/resized.jpg", image)
-
-
-image_resizer = ImageResizer()
-my_image = image_resizer.read_image("../../data/4.jpg")
-roi = image_resizer.crop_ticks_bar_area(my_image.copy())
+image_resizer = ImageResizerFactory().french_images()
+my_image = image_resizer.read_image("../../data/6.jpg")
+roi = image_resizer.crop_ticks_bar_area(my_image)
 thresh_image = image_resizer.threshold_image(roi)
 coordinates = image_resizer.find_white_points(thresh_image)
 tick = image_resizer.calculate_tick(coordinates)
