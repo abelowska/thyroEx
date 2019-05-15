@@ -14,7 +14,7 @@ class ImageResizerFactory:
 
     @staticmethod
     def french_images():
-        return ImageResizer(margin_x=300, margin_y=20, x=300, y=120, cut_off_threshold=230, special_ticks=1)
+        return ImageResizer(margin_x=300, margin_y=25, x=300, y=120, cut_off_threshold=230, special_ticks=1)
 
 
 class ImageResizer:
@@ -74,14 +74,10 @@ class ImageResizer:
     def crop_ticks_bar_area(self, image):
         y_size, x_size, _ = image.shape
         image = image[self.y:self.y + self.margin_y, self.x:x_size - self.margin_x].copy()
-        # cv2.imshow("Image", image)
-        # cv2.waitKey(0)
         return image
 
     def threshold_image(self, roi):
         (_, thresh) = cv2.threshold(roi, self.cut_off_threshold, 255, cv2.THRESH_BINARY)
-        # cv2.imshow("Image", thresh)
-        # cv2.waitKey(0)
         return thresh
 
     def calculate_tick(self, white_points_coordinates):
@@ -113,13 +109,21 @@ class ImageResizer:
 
 
 image_resizer = ImageResizerFactory().french_images()
-my_image = image_resizer.read_image("../../data/6.jpg")
+my_image = image_resizer.read_image("../../data/7.jpg")
+# cv2.imshow("Image", my_image)
+# cv2.waitKey(0)
 roi = image_resizer.crop_ticks_bar_area(my_image)
+# cv2.imshow("Image", roi)
+# cv2.waitKey(0)
 thresh_image = image_resizer.threshold_image(roi)
 coordinates = image_resizer.find_white_points(thresh_image)
 tick = image_resizer.calculate_tick(coordinates)
 
 my_image = image_resizer.resize(tick, my_image)
+
+cv2.imshow("Image", my_image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
 image_resizer.save_image(my_image)
 
-cv2.destroyAllWindows()
