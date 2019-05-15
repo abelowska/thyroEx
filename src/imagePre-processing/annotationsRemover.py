@@ -1,12 +1,13 @@
 import numpy as np
 import cv2
 
-# TODO wiekszy kernel na wyczernianie jeszcze wiekszego obszaru doodola artefaktow
-# TODO add automatic cropping roi of image. Check annotations removing for first database.
+# TODO add automatic cropping roi of image.
 
 
 # kernel (y,x)
 KERNEL = [(-1, 0), (-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1)]
+EDGE_LOWER_THRESHOLD = 30
+EDGE_UPPER_THRESHOLD = 90
 
 
 class AnnotationRemoverCreator:
@@ -39,6 +40,54 @@ class AnnotationRemover:
     @staticmethod
     def save_image(image):
         cv2.imwrite("../../data/change.jpg", image)
+
+    # then voting for x and y coordinates
+    @staticmethod
+    def crop_image(image):
+        y_size, x_size, _ = image.shape
+        tmp_image = cv2.cvtColor(image.copy(), cv2.COLOR_BGR2GRAY)
+
+        kernel = np.ones((3, 3), np.uint8)
+        tmp_image = cv2.erode(tmp_image, kernel, iterations=2)
+        kernel = np.ones((4, 4), np.uint8)
+        tmp_image = cv2.dilate(tmp_image, kernel, iterations=4)
+
+        # cv2.imshow("Image", tmp_image)
+        # cv2.waitKey(0)
+
+        indexes = np.where((tmp_image <= 20))
+        zipped_indexes = np.array(list(zip(indexes[0], indexes[1])))
+
+        for pixel in zipped_indexes:
+            y, x = pixel
+
+            neighbours = [(y + a, x + b) for a, b in KERNEL if 0 <= y + a < y_size and 0 <= x + a < x_size]
+            neighbours_values = [((yy, xx), tmp_image[yy, xx]) for yy, xx in neighbours if
+                                 0 <= yy < y_size and 0 <= xx < x_size]
+            filtered_neighbours = [item for item in neighbours_values if int(item[1]) < 1]
+
+            if len(filtered_neighbours) >= 3:
+                tmp_image[y, x] = 0
+
+        _, thresh = cv2.threshold(tmp_image.copy(), 0, 255, cv2.THRESH_BINARY)
+
+        edges = cv2.Canny(thresh, EDGE_LOWER_THRESHOLD, EDGE_UPPER_THRESHOLD)
+        cv2.imshow('Edges', edges)
+
+        contours, hierarchy = cv2.findContours(edges, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+        # getting the biggest one
+        contours = sorted(contours, key=cv2.contourArea, reverse=True)[:1]
+
+        for contour in contours:
+            # approximate the contour
+            peri = cv2.arcLength(curve=contour, closed=True)
+            approx = cv2.approxPolyDP(curve=contour, epsilon=0.01 * peri, closed=True)
+            cv2.drawContours(image, [contour], -1, 125, 5)
+
+        cv2.imshow("Image", image)
+        cv2.waitKey(0)
+
+        return None
 
     def find_annotations_with_neighbourhood(self, image):
         y_size, x_size, _ = image.shape
@@ -101,12 +150,13 @@ class AnnotationRemover:
                 average_color = int(_sum / len(neighbours_values))
                 image[y, x] = average_color
 
-        cv2.imshow("Image", image)
-        cv2.waitKey(0)
+        # cv2.imshow("Image", image)
+        # cv2.waitKey(0)
         return image
 
 
 annotation_remover = AnnotationRemoverCreator.columbia_annotations()
-my_image = annotation_remover.read_image(path="../../data/99_2.jpg")
+my_image = annotation_remover.read_image(path="../../data/9.jpg")
+my_image = annotation_remover.crop_image(my_image)
 my_image, pixels = annotation_remover.find_annotations_with_neighbourhood(image=my_image)
 my_image = annotation_remover.restore_gaps(image=my_image, pixels_with_bad_neighbours=pixels)
