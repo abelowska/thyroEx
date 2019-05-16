@@ -1,8 +1,6 @@
 import numpy as np
 import cv2
 
-# TODO add automatic cropping roi of image.
-
 
 # kernel (y,x)
 KERNEL = [(-1, 0), (-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1)]
@@ -41,41 +39,45 @@ class AnnotationRemover:
     def save_image(image):
         cv2.imwrite("../../data/change.jpg", image)
 
-    # then voting for x and y coordinates
     @staticmethod
-    def crop_image(image):
+    def find_roi(image):
         tmp_image = cv2.cvtColor(image.copy(), cv2.COLOR_BGR2GRAY)
 
         kernel = np.ones((3, 3), np.uint8)
         tmp_image = cv2.erode(tmp_image, kernel, iterations=2)
-        kernel = np.ones((4, 4), np.uint8)
+        # kernel = np.ones((4, 4), np.uint8)
         tmp_image = cv2.dilate(tmp_image, kernel, iterations=4)
 
         _, thresh = cv2.threshold(tmp_image, 0, 255, cv2.THRESH_BINARY)
 
         contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
-        # getting the biggest one
         contours = sorted(contours, key=cv2.contourArea, reverse=True)[:1]
 
-        for contour in contours:
-            # approximate the contour
-            peri = cv2.arcLength(curve=contour, closed=True)
-            approx = cv2.approxPolyDP(curve=contour, epsilon=0.01 * peri, closed=True)
-            cv2.drawContours(image, [contour], -1, (0,0,255), 1)
+        # approximate the contour
+        peri = cv2.arcLength(curve=contours[0], closed=True)
+        approx = cv2.approxPolyDP(curve=contours[0], epsilon=0.01 * peri, closed=True)
+
+        x, y, w, h = cv2.boundingRect(approx)
+        # cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        # cv2.imshow("Image", image)
+        # cv2.waitKey(0)
+
+        return x, y, w, h
+
+    @staticmethod
+    def crop_image(image, coordinates):
+        x, y, w, h = coordinates
+
+        image = image[y:y+h, x:x+w]
 
         cv2.imshow("Image", image)
         cv2.waitKey(0)
 
-        # return coordinates
-        return None
+        return image
 
     def find_annotations_with_neighbourhood(self, image):
         y_size, x_size, _ = image.shape
-        # cv2.imshow("Image", image)
-        # cv2.waitKey(0)
 
-        # change to gray scale
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
         # thresholding image
@@ -137,7 +139,8 @@ class AnnotationRemover:
 
 
 annotation_remover = AnnotationRemoverCreator.columbia_annotations()
-my_image = annotation_remover.read_image(path="../../data/7.jpg")
-my_image = annotation_remover.crop_image(my_image)
+my_image = annotation_remover.read_image(path="../../data/10.jpg")
+my_coordinates = annotation_remover.find_roi(my_image)
+my_image = annotation_remover.crop_image(my_image, my_coordinates)
 my_image, pixels = annotation_remover.find_annotations_with_neighbourhood(image=my_image)
 my_image = annotation_remover.restore_gaps(image=my_image, pixels_with_bad_neighbours=pixels)
