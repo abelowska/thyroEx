@@ -1,7 +1,9 @@
-import numpy as np
-import cv2
 import itertools
 from collections import Counter
+
+import cv2
+import numpy as np
+import piexif
 
 # default resolution of USG image
 DEFAULT_SIZE = 100
@@ -103,27 +105,38 @@ class ImageResizer:
         # plt.show()
 
         bar_tick = diffs_dict.most_common(self.special_ticks + 1)[self.special_ticks][0]
-        print(bar_tick)
 
+        print(bar_tick)
+        return bar_tick
+
+    @staticmethod
+    def save_bar_tick(path, bar_tick):
+        zeroth_ifd = {piexif.ImageIFD.DefaultScale: (bar_tick, 1)}
+        exif_dict = {"0th": zeroth_ifd, "Exif": {}, "GPS": {}, "1st": {}, "thumbnail": None}
+        exif_bytes = piexif.dump(exif_dict)
+        piexif.insert(exif_bytes, path)
+
+    @staticmethod
+    def read_tick(path):
+        exif_dict = piexif.load(path)
+        bar_tick = exif_dict["0th"][piexif.ImageIFD.DefaultScale][0]
+
+        print(bar_tick)
         return bar_tick
 
 
-image_resizer = ImageResizerFactory().french_images()
-my_image = image_resizer.read_image("../../data/7.jpg")
+image_resizer = ImageResizerFactory().columbia_images()
+my_image = image_resizer.read_image("../../data/1.jpg")
 # cv2.imshow("Image", my_image)
 # cv2.waitKey(0)
 roi = image_resizer.crop_ticks_bar_area(my_image)
-# cv2.imshow("Image", roi)
-# cv2.waitKey(0)
 thresh_image = image_resizer.threshold_image(roi)
 coordinates = image_resizer.find_white_points(thresh_image)
 tick = image_resizer.calculate_tick(coordinates)
 
-my_image = image_resizer.resize(tick, my_image)
+image_resizer.save_bar_tick("../../data/1.jpg", tick)
+metadata_tick = image_resizer.read_tick("../../data/1.jpg")
 
-cv2.imshow("Image", my_image)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-
+my_image = image_resizer.resize(metadata_tick, my_image)
 image_resizer.save_image(my_image)
 
