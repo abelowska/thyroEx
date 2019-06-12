@@ -33,8 +33,8 @@ class ImageResizer:
         return cv2.imread(path)
 
     @staticmethod
-    def save_image(image):
-        cv2.imwrite("../../data/resized.jpg", image)
+    def save_image(image, path):
+        cv2.imwrite(path, image)
 
     @staticmethod
     def find_white_points(thresh):
@@ -65,10 +65,10 @@ class ImageResizer:
 
 
     @staticmethod
-    def resize(bar_tick, image):
+    def resize(bar_tick, default_tick, image):
         if bar_tick != DEFAULT_SIZE:
             print("in resizing")
-            scale = DEFAULT_SIZE / bar_tick
+            scale = default_tick / bar_tick
             image = cv2.resize(image, None, fx=scale, fy=scale)
             return image
 
@@ -125,18 +125,18 @@ class ImageResizer:
         return bar_tick
 
 
-image_resizer = ImageResizerFactory().columbia_images()
-my_image = image_resizer.read_image("../../data/1.jpg")
-# cv2.imshow("Image", my_image)
-# cv2.waitKey(0)
-roi = image_resizer.crop_ticks_bar_area(my_image)
-thresh_image = image_resizer.threshold_image(roi)
-coordinates = image_resizer.find_white_points(thresh_image)
-tick = image_resizer.calculate_tick(coordinates)
-
-image_resizer.save_bar_tick("../../data/1.jpg", tick)
-metadata_tick = image_resizer.read_tick("../../data/1.jpg")
-
-my_image = image_resizer.resize(metadata_tick, my_image)
-image_resizer.save_image(my_image)
+# image_resizer = ImageResizerFactory().columbia_images()
+# my_image = image_resizer.read_image("../../data/1.jpg")
+# # cv2.imshow("Image", my_image)
+# # cv2.waitKey(0)
+# roi = image_resizer.crop_ticks_bar_area(my_image)
+# thresh_image = image_resizer.threshold_image(roi)
+# coordinates = image_resizer.find_white_points(thresh_image)
+# tick = image_resizer.calculate_tick(coordinates)
+#
+# image_resizer.save_bar_tick("../../data/1.jpg", tick)
+# metadata_tick = image_resizer.read_tick("../../data/1.jpg")
+#
+# my_image = image_resizer.resize(metadata_tick, my_image)
+# image_resizer.save_image(my_image)
 

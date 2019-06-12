@@ -67,11 +67,12 @@ class AnnotationRemover:
     @staticmethod
     def crop_image(image, coordinates):
         x, y, w, h = coordinates
+        margin = 5
 
-        image = image[y:y+h, x:x+w]
+        image = image[y+margin:y+h-margin, x+margin:x+w-margin]
 
-        cv2.imshow("Image", image)
-        cv2.waitKey(0)
+        # cv2.imshow("Image", image)
+        # cv2.waitKey(0)
 
         return image
 
@@ -91,8 +92,9 @@ class AnnotationRemover:
             for pixel in zipped_indexes:
                 y, x = pixel
 
+                # TODO why without -1 here could be division by zero?
                 # all neighbours
-                neighbours = [(y + a, x + b) for a, b in KERNEL if 0 <= y + a < y_size and 0 <= x + a < x_size]
+                neighbours = [(y + a, x + b) for a, b in KERNEL if 0 <= y + a < y_size-1 and 0 <= x + a < x_size-1]
                 # neighbours with indexes and values
                 neighbours_values = [((yy, xx), image[yy, xx]) for yy, xx in neighbours if
                                      0 <= yy < y_size and 0 <= xx < x_size]
@@ -105,8 +107,8 @@ class AnnotationRemover:
                     pixels_with_bad_neighbours.append(pixel)
                     pixels_with_bad_neighbours.extend(neighbours)
 
-        for item in pixels_with_bad_neighbours:
-            image[item[0], item[1]] = 255
+        # for item in pixels_with_bad_neighbours:
+        #     image[item[0], item[1]] = 255
 
         # cv2.imshow("Image", image)
         # cv2.waitKey(0)
@@ -114,13 +116,13 @@ class AnnotationRemover:
 
     def restore_gaps(self, image, pixels_with_bad_neighbours):
         #  for first database steps = 5 (but 10 is also ok)
-        y_size, x_size = image.shape
+        y_size, x_size  = image.shape
 
         for i in range(self.steps):
             for pixel in pixels_with_bad_neighbours:
                 y, x = pixel
 
-                neighbours = [(y + a, x + b) for a, b in KERNEL]
+                neighbours = [(y + a, x + b) for a, b in KERNEL if 0 <= y + a < y_size and 0 <= x + a < x_size]
                 neighbours_values = [((yy, xx), image[yy, xx]) for yy, xx in neighbours if
                                      0 <= yy < y_size and 0 <= xx < x_size]
 
@@ -137,10 +139,10 @@ class AnnotationRemover:
         # cv2.waitKey(0)
         return image
 
-
-annotation_remover = AnnotationRemoverCreator.columbia_annotations()
-my_image = annotation_remover.read_image(path="../../data/10.jpg")
-my_coordinates = annotation_remover.find_roi(my_image)
-my_image = annotation_remover.crop_image(my_image, my_coordinates)
-my_image, pixels = annotation_remover.find_annotations_with_neighbourhood(image=my_image)
-my_image = annotation_remover.restore_gaps(image=my_image, pixels_with_bad_neighbours=pixels)
+#
+# annotation_remover = AnnotationRemoverCreator.columbia_annotations()
+# my_image = annotation_remover.read_image(path="../../data/10.jpg")
+# my_coordinates = annotation_remover.find_roi(my_image)
+# my_image = annotation_remover.crop_image(my_image, my_coordinates)
+# my_image, pixels = annotation_remover.find_annotations_with_neighbourhood(image=my_image)
+# my_image = annotation_remover.restore_gaps(image=my_image, pixels_with_bad_neighbours=pixels)
