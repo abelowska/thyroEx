@@ -2,7 +2,7 @@ import os
 import xml.etree.cElementTree as ET
 import re
 
-path = '/home/mikegpl/Desktop/IM/thyroid/'
+path = ''
 
 files_list = os.listdir(path)  # returns list
 
