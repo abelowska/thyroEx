@@ -1,6 +1,8 @@
+import cv2
 import os
 from collections import Counter
 
+from src.imagePreprocessing.helpers import rotation_augmentation, crop_image
 from src.imagePreprocessing.tickBarsDetector import ImageResizerFactory
 from src.imagePreprocessing.annotationsRemover import AnnotationRemoverCreator
 import matplotlib.pyplot as plt
@@ -12,6 +14,7 @@ files_list = os.listdir(path)  # returns list
 image_resizer = ImageResizerFactory().columbia_images()
 ticks = []
 
+# finding scale
 for file in files_list:
     image = image_resizer.read_image(path + file)
     # cv2.imshow("Image", my_image)
@@ -28,6 +31,7 @@ diffs_dict = Counter(ticks)
 default_bar_tick = diffs_dict.most_common(1)[0][0]
 print(default_bar_tick)
 
+# removing artifacts and normalizing
 annotation_remover = AnnotationRemoverCreator.columbia_annotations()
 
 for file in files_list:
@@ -42,5 +46,23 @@ for file in files_list:
     image_resizer.save_image(image, path + file)
 
 
+# augmentation
+path = ''
+files_list = os.listdir(path)  # returns list
 
+for file in files_list:
+    image = cv2.imread(path + file)
+    images = rotation_augmentation(image, 10)
+    i = 0
+    for im in images:
+        image_resizer.save_image(im, '{}{}_{}'.format(path, file, i))
+        i += 1
 
+# cropping and downscaling
+path = ''
+files_list = os.listdir(path)  # returns list
+
+for file in files_list:
+    image = cv2.imread(path+file)
+    image = crop_image(image)
+    # image = resize_image(image, 40)
