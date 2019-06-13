@@ -2,7 +2,7 @@ import cv2
 import os
 from collections import Counter
 
-from src.imagePreprocessing.helpers import rotation_augmentation, crop_image
+from src.imagePreprocessing.helpers import rotation_augmentation, crop_image, resize_image
 from src.imagePreprocessing.tickBarsDetector import ImageResizerFactory
 from src.imagePreprocessing.annotationsRemover import AnnotationRemoverCreator
 import matplotlib.pyplot as plt
@@ -49,20 +49,41 @@ for file in files_list:
 # augmentation
 path = ''
 files_list = os.listdir(path)  # returns list
+angle = 10
 
 for file in files_list:
     image = cv2.imread(path + file)
-    images = rotation_augmentation(image, 10)
+    images = rotation_augmentation(image, angle)
     i = 0
     for im in images:
-        image_resizer.save_image(im, '{}{}_{}'.format(path, file, i))
+        filename, file_extension = os.path.splitext(path + file)
+        image_resizer.save_image(im, '{}{}_{}{}'.format(path, filename, i, file_extension))
         i += 1
 
 # cropping and downscaling
 path = ''
 files_list = os.listdir(path)  # returns list
+scale = 224
 
 for file in files_list:
     image = cv2.imread(path+file)
     image = crop_image(image)
-    # image = resize_image(image, 40)
+    # image = resize_image(image, scale)
+    image_resizer.save_image(image, path + file)
+
+# for file in files_list:
+#     filename, rest = file.split('.')
+#     print('{} {}'.format(filename, rest))
+#     if '_' not in rest:
+#         pass
+#     else:
+#         extension, number = rest.split('_')
+#         print('{} {}'.format(extension, number))
+#         print(file)
+#
+#         os.rename(path + file, '{}{}_{}.{}'.format(path, filename, number, extension))
+
+
+
+
+
