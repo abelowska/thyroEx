@@ -1,3 +1,4 @@
+imutils
 biopython==1.73
 certifi==2019.3.9
 chardet==3.0.4
