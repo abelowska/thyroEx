@@ -5,9 +5,6 @@ import cv2
 import numpy as np
 import piexif
 
-# default resolution of USG image
-DEFAULT_SIZE = 100
-
 
 class ImageResizerFactory:
     @staticmethod
@@ -27,14 +24,6 @@ class ImageResizer:
         self.y = y
         self.cut_off_threshold = cut_off_threshold
         self.special_ticks = special_ticks
-
-    @staticmethod
-    def read_image(path):
-        return cv2.imread(path)
-
-    @staticmethod
-    def save_image(image, path):
-        cv2.imwrite(path, image)
 
     @staticmethod
     def find_white_points(thresh):
@@ -66,7 +55,7 @@ class ImageResizer:
 
     @staticmethod
     def resize(bar_tick, default_tick, image):
-        if bar_tick != DEFAULT_SIZE:
+        if bar_tick != default_tick:
             print("in resizing")
             scale = default_tick / bar_tick
             image = cv2.resize(image, None, fx=scale, fy=scale)
@@ -124,19 +113,11 @@ class ImageResizer:
         print(bar_tick)
         return bar_tick
 
-
-# image_resizer = ImageResizerFactory().columbia_images()
-# my_image = image_resizer.read_image("../../data/1.jpg")
-# # cv2.imshow("Image", my_image)
-# # cv2.waitKey(0)
-# roi = image_resizer.crop_ticks_bar_area(my_image)
-# thresh_image = image_resizer.threshold_image(roi)
-# coordinates = image_resizer.find_white_points(thresh_image)
-# tick = image_resizer.calculate_tick(coordinates)
-#
-# image_resizer.save_bar_tick("../../data/1.jpg", tick)
-# metadata_tick = image_resizer.read_tick("../../data/1.jpg")
-#
-# my_image = image_resizer.resize(metadata_tick, my_image)
-# image_resizer.save_image(my_image)
+    def find_tick(self, image):
+        # cv2.imshow("Image", my_image)
+        # cv2.waitKey(0)
+        roi = self.crop_ticks_bar_area(image)
+        thresh_image = self.threshold_image(roi)
+        coordinates = self.find_white_points(thresh_image)
+        return self.calculate_tick(coordinates)
 

@@ -30,16 +30,6 @@ class AnnotationRemover:
         self.steps = steps
 
     @staticmethod
-    def read_image(path):
-        return cv2.imread(path)
-
-    # TODO add fit name of changed image
-
-    @staticmethod
-    def save_image(image):
-        cv2.imwrite("../../data/change.jpg", image)
-
-    @staticmethod
     def find_roi(image):
         tmp_image = cv2.cvtColor(image.copy(), cv2.COLOR_BGR2GRAY)
 
@@ -139,10 +129,13 @@ class AnnotationRemover:
         # cv2.waitKey(0)
         return image
 
-#
-# annotation_remover = AnnotationRemoverCreator.columbia_annotations()
-# my_image = annotation_remover.read_image(path="../../data/10.jpg")
-# my_coordinates = annotation_remover.find_roi(my_image)
-# my_image = annotation_remover.crop_image(my_image, my_coordinates)
-# my_image, pixels = annotation_remover.find_annotations_with_neighbourhood(image=my_image)
-# my_image = annotation_remover.restore_gaps(image=my_image, pixels_with_bad_neighbours=pixels)
+    def remove_annotations(self, image):
+        my_coordinates = self.find_roi(image)
+        my_image = self.crop_image(image, my_coordinates)
+        my_image, pixels = self.find_annotations_with_neighbourhood(image=my_image)
+        my_image = self.restore_gaps(image=my_image, pixels_with_bad_neighbours=pixels)
+
+        return my_image
+
+
+
