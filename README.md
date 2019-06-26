@@ -47,6 +47,9 @@ Obróbkę zdjęć przedstawia poniższy diagram:
 
 [flow]: https://github.com/abelowska/IM-Detector/blob/master/src/images/flow.png
 
+<p align="center">
+  <img src="https://github.com/abelowska/IM-Detector/blob/master/src/images/flow.png">
+</p>
 
 * Dla poprawnego działania sieci potrzebna była normalizacja danych. Ponieważ wszystkie pliki były w formacie .jpg,
 nie było wiadomo na jakim przybliżeniu było wykonane zdjęcie USG. W tym celu jest wykrywana
@@ -106,8 +109,7 @@ googlenet = Model(inputs=model.layers[0].output,
 sgd = SGD(lr=0.1, decay=1e-6, momentum=0.9, nesterov=True)``
 
 
-Dzięki temu zeszlismy w ilości trenowalnych parametrów do 5,975,602.
-
+Dzięki temu znacznie zmniejszyliśmy ilość parametrów sieci, co pozwoliło skrócić czas trenowania.
 
 ## 4. Stos technologiczny
 
@@ -130,8 +132,8 @@ Koncowe parametry naszego modelu wynoszą:
 ``loss: 4.3033 - acc: 0.7941 - val_loss: 4.5435 - val_acc: 0.785
 ``
 
-Jednak przeprowadzony test nie wykorzystywał w pełni możliwości stworzonego modelu. 
-Nie udało nam się uruchomić modelu dla całego poisadanego zbioru danych.
+Przeprowadzony przez nas test nie wykorzystywał w pełni możliwości stworzonego modelu. 
+Ze wzglęu na obciążenie procesora nie udało nam się uruchomić modelu dla całego posiadanego zbioru danych.
 
 Zauważylismy również, iż do ostatniej epoko wartość zmiennej ``loss`` ciągle malała, co sugeruje, iż możemy dalej trenowac nasz model z większa ilością epok.
 
@@ -151,3 +153,5 @@ Jak to przy sieciach neuronowych bywa, jest wiele obszarów, które musimy spraw
 https://www.pyimagesearch.com/2017/12/11/image-classification-with-keras-and-deep-learning/
 
 https://gist.github.com/joelouismarino/a2ede9ab3928f999575423b9887abd14
+
+https://radiopaedia.org/articles/thyroid-image-reporting-and-data-system-ti-rads
