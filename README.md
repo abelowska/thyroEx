@@ -42,11 +42,6 @@ Wszystkie dane zostały pobrane z bazy danych kolumbijskiego uniwersytetu medycz
 
 Obróbkę zdjęć przedstawia poniższy diagram:
 
-
- ![alt text][flow]
-
-[flow]: https://github.com/abelowska/IM-Detector/blob/master/src/images/flow.png
-
 <p align="center">
   <img src="https://github.com/abelowska/IM-Detector/blob/master/src/images/flow.png">
 </p>
