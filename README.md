@@ -65,7 +65,7 @@ Uzyskaliśmy w ten sposób zbiór danych liczący 7302. próbki.
 
 ### 3.2 Trenowanie sieci neuronowej
 
-Naszym modelem była siec neuronowa GoogLeNet. Posiada ona xxx warstw. Aby skorzystać z pre-trenowanego modelu
+Naszym modelem była siec neuronowa GoogLeNet. Posiada ona 96 warstw. Aby skorzystać z pre-trenowanego modelu
 użyliśmy pliku z gotowymi wagami dla tej architektury.
 
 ```python
@@ -76,7 +76,7 @@ model.compile(optimizer=sgd, loss='categorical_crossentropy')
 
 ```
 
-Nasz zbiór danych został podzielony w stosuku 25 : 75 na testowy i treningowy. 
+Nasz zbiór danych został podzielony w stosuku 25 : 75 na testowy i treningowy. Ilość epok była równa 15, a ``batch_size`` wynosił 32.
 
 Aby trenować tylko górne warstwy sieci wyłączyliśmy aktualizowanie wag modelu dla niektórych warstw. Następnie, aby
 móc wykorzystać gotowy model musieliśmy podmienić wastwy końcowe, które oryginalnie miały 1000 klas wynikowych.
@@ -93,26 +93,60 @@ loss2_classifier_act = Activation('softmax')(loss2_classifier)
 loss3_classifier_act = Activation('softmax', name='prob')(loss3_classifier)
 ```
 
-Oryginalnie GoogLeNet posiada trójwymiarowy wektor wyjścia
+Oryginalnie GoogLeNet posiada trójwymiarowy wektor wyjścia:
 
 ``googlenet = Model(input=input, output=[loss1_classifier_act,loss2_classifier_act,loss3_classifier_act])``
 
 aby wsteczna propagacja informacji docierała do warstw głębokich, ponieważ jest to bardzo głęboka sieć.
-Zdecydowaliśmy się jednak, ze względu na trenowanie tylko górnych wartw, na zmianę wektora wyjściowego na jednowymiarowy:
+Zdecydowaliśmy się jednak, ze względu na trenowanie tylko górnych warstw, na zmianę wektora wyjściowego na jednowymiarowy:
 
 ``
 googlenet = Model(inputs=model.layers[0].output,
                   outputs=[loss3_classifier_act])
 sgd = SGD(lr=0.1, decay=1e-6, momentum=0.9, nesterov=True)``
+
+
+Dzięki temu zeszlismy w ilości trenowalnych parametrów do 5,975,602.
+
+
 ## 4. Stos technologiczny
+
+* Python 3.6
+* Keras 2.2.4
+* Theano 1.0.4
+* googLeNet
+* OpenCv
+* sklearn
+* Pillow
+* imageio
+* piexif
 
 ## 5. Wyniki
 
+Przy obecnej implementacji nie uzyskalismy satysfakcjonujących wyników. 
+Koncowe parametry naszego modelu wynoszą:
 
 
+``loss: 4.3033 - acc: 0.7941 - val_loss: 4.5435 - val_acc: 0.785
+``
+
+Jednak przeprowadzony test nie wykorzystywał w pełni możliwości stworzonego modelu. 
+Nie udało nam się uruchomić modelu dla całego poisadanego zbioru danych.
+
+Zauważylismy również, iż do ostatniej epoko wartość zmiennej ``loss`` ciągle malała, co sugeruje, iż możemy dalej trenowac nasz model z większa ilością epok.
+
+## 5. Perspektywy rozwoju projektu
+
+Jak to przy sieciach neuronowych bywa, jest wiele obszarów, które musimy sprawdzić, aby poprawić skuteczność naszej sieci. Nasz plan rozwoju projektu zawiera:
+
+* obserwację wpływu zamrażania niektórych warstw sieci na jej skuteczność
+* zastosowanie trójwymiarowego wektora wyjścia dla modelu
+* zwiększenie ilości epok
+* zmiana wielkości `` batch_size``
+* zastosowanie dodatkowych filtrów dla posiadanego zbioru danych
 
 
-https://github.com/dandxy89/ImageModels/blob/master/GoogLeNet.py
+## 6. Bibliografia
 
 https://www.pyimagesearch.com/2017/12/11/image-classification-with-keras-and-deep-learning/
 
