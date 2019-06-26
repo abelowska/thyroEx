@@ -15,8 +15,8 @@ stopniu złośliwości guza jest biopsja tarczycy (BACC). Niestety, guzy tarczyc
  
  ![alt text][logo]
 
-[logo]: https://github.com/abelowska/IM-Detector/master/dataTIRADS-2017-Flow-Chart.jpg
- "Logo Title Text 2"
+[logo]: https://github.com/abelowska/IM-Detector/blob/master/src/images/TIRADS-2017-Flow-Chart.jpg
+
  
 Celem naszego projektu była automatyczn klasyfikacja guzów tarczycy na złośliwe i niezłośliwe. 
 Do dokonania klasyfikacji została użyta pre trenowana sieć neuronowa GoogLeNet. Dla podziału guzów na złośliwe i nie 
