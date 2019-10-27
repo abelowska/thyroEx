@@ -14,7 +14,9 @@ class DataGenerator:
     def load_data(self, path):
         print("[INFO] loading images...")
 
-        image_paths = sorted(list(paths.list_images(path)))[1000:-5000]
+        image_paths = sorted(list(paths.list_images(path)))[:2500]
+        print(image_paths)
+
         random.seed(42)
         random.shuffle(image_paths)
 

@@ -20,7 +20,7 @@ import numpy as np
 EPOCHS = 15
 INIT_LR = 1e-3
 BS = 32
-PATH = '/Users/Anna/work/'
+PATH = '/Users/Anna/work/data/'
 
 dg = DataGenerator()
 (x_train, y_train), (x_test, y_test) = dg.load_data(PATH)

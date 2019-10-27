@@ -55,11 +55,11 @@ class ImageResizer:
 
     @staticmethod
     def resize(bar_tick, default_tick, image):
-        if bar_tick != default_tick:
-            print("in resizing")
-            scale = default_tick / bar_tick
-            image = cv2.resize(image, None, fx=scale, fy=scale)
-            return image
+        # if bar_tick != default_tick:
+        print("in resizing")
+        scale = default_tick / bar_tick
+        image = cv2.resize(image, None, fx=scale, fy=scale)
+        return image
 
      # returns roi
     def crop_ticks_bar_area(self, image):

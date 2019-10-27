@@ -41,6 +41,7 @@ def rotate(image, max_angle):
 
     matrix_list = [cv2.getRotationMatrix2D((x_size / 2, y_size / 2), angle, 1) for angle in angle_list]
     images = [cv2.warpAffine(image.copy(), M, (x_size, y_size)) for M in matrix_list]
+    print(len(images))
 
     return images
 
@@ -53,8 +54,6 @@ def crop_image_after_rotation(image):
     # TODO automatically calculated add margin
     margin_x = x_size - dest_size + 70
     margin_y = y_size - dest_size + 70
-
-    print('{}, {}'.format(margin_x, margin_y))
 
     return image[int(margin_y / 2):y_size - int(margin_y / 2), int(margin_x / 2):x_size - int(margin_x / 2)]
 
